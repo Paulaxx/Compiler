@@ -1,6 +1,9 @@
 import ply.yacc as yacc
 from lexer import tokens
 import sys
+from SymbolTable import *
+
+symbol_table = SymbolTable()
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
@@ -20,22 +23,24 @@ def p_program_begin(p):
 
 def p_declarations_declarations_pidentifier(p):
     'declarations : declarations COMMA pidentifier'
-    pass
+    symbol_table.add_variable(p[3])
 
 
 def p_declarations_declarations_pidentifier_num(p):
-    'declarations : declarations COMMA pidentifier LPAREN num COLON num'
-    pass
+    'declarations : declarations COMMA pidentifier LPAREN num COLON num RPAREN'
+    symbol_table.add_table(p[3], p[5], p[7])
 
 
 def p_declarations_pidentifier(p):
     'declarations : pidentifier'
-    pass
+    symbol_table.add_variable(p[1])
 
 
 def p_declarations_pidentifier_num(p):
     'declarations : pidentifier LPAREN num COLON num RPAREN'
-    pass
+    print("tablicaaaa")
+    print(p[1], p[3], p[5])
+    symbol_table.add_table(p[1], p[3], p[5])
 
 
 def p_commands_commands_command(p):
@@ -155,34 +160,36 @@ def p_condition_geq(p):
 
 def p_value_num(p):
     'value : num'
-    pass
+    p[0] = symbol_table.get_num(p[1])
+    print(p[1], p[0])
 
 
 def p_value_identifier(p):
     'value : identifier'
-    pass
+    p[0] = p[1]
 
 
 def p_identifier_pidentifier(p):
     'identifier : pidentifier'
-    pass
+    p[0] = symbol_table.get_variable(p[1])
 
 
 def p_identifier_pidentifier_pidentifier(p):
     'identifier : pidentifier LPAREN pidentifier RPAREN'
-    pass
+    p[0] = symbol_table.get_table_on_position_pidentifier(p[1], p[3])
 
 
 def p_identifier_pidentifier_num(p):
     'identifier : pidentifier LPAREN num RPAREN'
-    pass
+    p[0] = symbol_table.get_table_on_position_num(p[1], p[3])
+
 
 def p_error(p):
-    pass
+    print("Jakis blad")
 
 
 def main():
-    inputFile = sys.argv[1]
+    inputFile = "test.imp"
     # outFile = sys.argv[2]
     parser = yacc.yacc()
     with open(inputFile, "r") as file:

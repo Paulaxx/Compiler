@@ -189,7 +189,11 @@ def p_identifier_pidentifier_num(p):
 
 
 def p_error(p):
-    pass
+    if p:
+        print("Syntax error at token", p.type)
+    else:
+        print("Syntax error at EOF")
+    exit(5)
 
 
 def main():

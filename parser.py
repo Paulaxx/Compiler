@@ -2,8 +2,10 @@ import ply.yacc as yacc
 from lexer import tokens
 import sys
 from SymbolTable import *
+from MachineCode import *
 
 symbol_table = SymbolTable()
+code = MachineCode();
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
@@ -38,8 +40,6 @@ def p_declarations_pidentifier(p):
 
 def p_declarations_pidentifier_num(p):
     'declarations : pidentifier LPAREN num COLON num RPAREN'
-    print("tablicaaaa")
-    print(p[1], p[3], p[5])
     symbol_table.add_table(p[1], p[3], p[5])
 
 
@@ -90,12 +90,17 @@ def p_command_for_downto(p):
 
 def p_read(p):
     'command : READ identifier SEMICOLON'
-    pass
+    code.read(p[2])
+    p[2][0]['is_in_memory'] = 1
+    p[2][0]['value'] = 0
 
 
 def p_write(p):
     'command : WRITE value SEMICOLON'
-    pass
+    code.write(p[2])
+    if isinstance(p[2], list):
+        p[2] = p[2][0]
+    p[2]['is_in_memory'] = 1
 
 
 def p_expression_value(p):
@@ -161,7 +166,6 @@ def p_condition_geq(p):
 def p_value_num(p):
     'value : num'
     p[0] = symbol_table.get_num(p[1])
-    print(p[1], p[0])
 
 
 def p_value_identifier(p):
@@ -185,7 +189,7 @@ def p_identifier_pidentifier_num(p):
 
 
 def p_error(p):
-    print("Jakis blad")
+    pass
 
 
 def main():
@@ -194,6 +198,10 @@ def main():
     parser = yacc.yacc()
     with open(inputFile, "r") as file:
         parser.parse(file.read())
+    for i in code.code:
+        print(i)
+    for i in symbol_table.table:
+        print(i)
 
 
 if __name__ == "__main__":

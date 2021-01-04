@@ -63,6 +63,22 @@ class MachineCode:
         else:
             return self.r1, self.r2, self.r3
 
+    def get_4_registers(self, value1):
+        if self.r1['value'] == value1:
+            return self.r1, self.r2, self.r3, self.r4
+        elif self.r2['value'] == value1:
+            return self.r2, self.r3, self.r4, self.r5
+        elif self.r3['value'] == value1:
+            return self.r3, self.r4, self.r5, self.r6
+        elif self.r4['value'] == value1:
+            return self.r4, self.r5, self.r6, self.r1
+        elif self.r5['value'] == value1:
+            return self.r5, self.r6, self.r1, self.r2
+        elif self.r6['value'] == value1:
+            return self.r6, self.r1, self.r2, self.r3
+        else:
+            return self.r1, self.r2, self.r3, self.r4
+
     def get_register_diff(self, reg):
         if self.r1['name'] != reg:
             return self.r1
@@ -361,6 +377,106 @@ class MachineCode:
             self.code.append(command)
 
             return reg3
+
+    def expression_divide(self, var1, var2):
+        if isinstance(var1, list):
+            var1 = var1[0]
+        if isinstance(var2, list):
+            var2 = var2[0]
+
+        if var1['only_value'] == 1 and var2['only_value'] == 1:
+            if var2['value'] == 0:
+                result = 0
+            else:
+                result = var1['value'] // var2['value']
+            reg = self.get_register_by_value(result)
+            self.set_value_to_register(reg['name'], reg['value'], result)
+            self.actualize_register_value(reg['name'], result)
+            return reg
+        elif var1['only_value'] == 1 and var2['only_value'] == 0:
+            if var1['value'] == 0:
+                reg = self.get_register_by_value(0)
+                self.set_value_to_register(reg['name'], reg['value'], 0)
+                self.actualize_register_value(reg['name'], 0)
+                return reg
+            else:
+                address2 = var2['address']
+                reg2, reg1, reg3, reg4 = self.get_4_registers(address2)
+                self.set_value_to_register(reg1['name'], reg1['value'], var1['value'])
+                self.set_value_to_register(reg4['name'], reg4['value'], var1['value']+1)
+                self.actualize_register_value(reg1['name'], -1)
+                self.actualize_register_value(reg4['name'], -1)
+                self.actualize_register_value(reg3['name'], -1)
+                self.actualize_register_value(reg2['name'], -1)
+                self.set_value_to_register(reg3['name'], reg3['value'], 0)
+                self.set_value_to_register(reg2['name'], reg2['value'], address2)
+                command = {'com': "LOAD", 'arg1': reg2['name'], 'arg2': reg2['name']}
+                self.code.append(command)
+
+        elif var1['only_value'] == 0 and var2['only_value'] == 1:
+            if var2['value'] == 0:
+                reg = self.get_register_by_value(0)
+                self.set_value_to_register(reg['name'], reg['value'], 0)
+                self.actualize_register_value(reg['name'], 0)
+                return reg
+            else:
+                address1 = var1['address']
+                reg1, reg2, reg3, reg4 = self.get_4_registers(address1)
+                self.set_value_to_register(reg1['name'], reg1['value'], address1)
+                command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
+                self.code.append(command)
+                self.set_value_to_register(reg2['name'], reg2['value'], var2['value'])
+                self.set_value_to_register(reg4['name'], reg4['value'], address1)
+                command = {'com': "LOAD", 'arg1': reg4['name'], 'arg2': reg4['name']}
+                self.code.append(command)
+                command = {'com': "INC", 'arg1': reg4['name'], 'arg2': ""}
+                self.code.append(command)
+                self.set_value_to_register(reg3['name'], reg3['value'], 0)
+                self.actualize_register_value(reg1['name'], -1)
+                self.actualize_register_value(reg4['name'], -1)
+                self.actualize_register_value(reg3['name'], -1)
+                self.actualize_register_value(reg2['name'], -1)
+
+
+        else:
+            address1 = var1['address']
+            address2 = var2['address']
+            reg1, reg2, reg3, reg4 = self.get_4_registers(address1)
+            self.set_value_to_register(reg1['name'], reg1['value'], address1)
+            command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+            self.set_value_to_register(reg2['name'], reg2['value'], address2)
+            command = {'com': "LOAD", 'arg1': reg2['name'], 'arg2': reg2['name']}
+            self.code.append(command)
+            self.set_value_to_register(reg4['name'], reg4['value'], address1)
+            command = {'com': "LOAD", 'arg1': reg4['name'], 'arg2': reg4['name']}
+            self.code.append(command)
+            command = {'com': "INC", 'arg1': reg4['name'], 'arg2': ""}
+            self.code.append(command)
+            self.set_value_to_register(reg3['name'], reg3['value'], 0)
+            self.actualize_register_value(reg1['name'], -1)
+            self.actualize_register_value(reg4['name'], -1)
+            self.actualize_register_value(reg3['name'], -1)
+            self.actualize_register_value(reg2['name'], -1)
+
+        command = {'com': "SUB", 'arg1': reg1['name'], 'arg2': reg2['name']}
+        self.code.append(command)
+        command = {'com': "SUB", 'arg1': reg4['name'], 'arg2': reg2['name']}
+        self.code.append(command)
+        command = {'com': "JZERO", 'arg1': reg1['name'], 'arg2': str(3)}
+        self.code.append(command)
+        command = {'com': "INC", 'arg1': reg3['name'], 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "JUMP", 'arg1': str(-4), 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "JZERO", 'arg1': reg4['name'], 'arg2': str(2)}
+        self.code.append(command)
+        command = {'com': "INC", 'arg1': reg3['name'], 'arg2': ""}
+        self.code.append(command)
+        return reg3
+
+
+
 
     def assign(self, reg, var):
         if isinstance(var, list):

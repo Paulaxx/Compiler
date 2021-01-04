@@ -130,7 +130,8 @@ def p_expression_times(p):
 
 def p_expression_divide(p):
     'expression : value DIVIDE value'
-    pass
+    reg = code.expression_divide(p[1], p[3])
+    p[0] = Expression(reg)
 
 
 def p_expression_modulo(p):

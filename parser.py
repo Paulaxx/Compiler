@@ -56,8 +56,7 @@ def p_commands_command(p):
 
 def p_command_identifier_expression(p):
     'command : identifier ASSIGN expression SEMICOLON'
-    if p[3] is not None:
-        print("Assign: ", p[3].register)
+    code.assign(p[3].register, p[1])
 
 
 def p_command_if_else(p):
@@ -113,17 +112,20 @@ def p_expression_value(p):
 
 def p_expression_plus(p):
     'expression : value PLUS value'
-    pass
+    reg = code.expression_plus_minus(p[1], p[3], p[2])
+    p[0] = Expression(reg)
 
 
 def p_expression_minus(p):
     'expression : value MINUS value'
-    pass
+    reg = code.expression_plus_minus(p[1], p[3], p[2])
+    p[0] = Expression(reg)
 
 
 def p_expression_times(p):
     'expression : value TIMES value'
-    pass
+    reg = code.expression_times(p[1], p[3])
+    p[0] = Expression(reg)
 
 
 def p_expression_divide(p):
@@ -205,8 +207,10 @@ def main():
     parser = yacc.yacc()
     with open(inputFile, "r") as file:
         parser.parse(file.read())
+    c=0
     for i in code.code:
-        print(i)
+        print(c, i)
+        c += 1
     for i in symbol_table.table:
         print(i)
 

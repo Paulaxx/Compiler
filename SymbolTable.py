@@ -12,7 +12,8 @@ class SymbolTable:
             'iterator': 0,
             'name': "",
             'only_value': 0,
-            'value': -1
+            'value': -1,
+            'is_in_memory' : 0
         }
         self.counter = 0
 
@@ -23,7 +24,7 @@ class SymbolTable:
             sys.exit()
         else:
             var = {'address': self.counter, 'start': 0, 'end': 0, 'table': 0, 'iterator': 0, 'name': name,
-                   'only_value': 0, 'value': -1}
+                   'only_value': 0, 'value': -1, 'is_in_memory' : 0}
             self.counter += 1
             self.table.append(var)
 
@@ -37,7 +38,7 @@ class SymbolTable:
                 print("Zly zakres tablicy", name)
                 sys.exit()
             var = {'address': self.counter, 'start': start, 'end': end, 'table': 1, 'iterator': 0, 'name': name,
-                   'only_value': 0, 'value': -1}
+                   'only_value': 0, 'value': -1, 'is_in_memory' : 0}
             l = end - start + 1
             self.counter += l
             self.table.append(var)
@@ -67,7 +68,7 @@ class SymbolTable:
                 new_name = name + "(" + str(num) + ")"
                 address = find[0]['address'] + num - find[0]['start']
                 var = {'address': address, 'start': 0, 'end': 0, 'table': 0, 'iterator': 0, 'name': new_name,
-                       'only_value': 0, 'value': -1}
+                       'only_value': 0, 'value': -1, 'is_in_memory' : 0}
                 return var
         else:
             print("Tablica ", name, " nie zadeklarowana")
@@ -94,7 +95,7 @@ class SymbolTable:
                     else:
                         address = find[0]['address'] + find2[0]['value']
                         var = {'address': address, 'start': 0, 'end': 0, 'table': 0, 'iterator': 0, 'name': "",
-                               'only_value': 0, 'value': -1}
+                               'only_value': 0, 'value': -1, 'is_in_memory' : 0}
                         return var
                 else:
                     print("Zmienna ", pid, " nie zadeklarowana")
@@ -104,7 +105,14 @@ class SymbolTable:
             sys.exit()
 
     def get_num(self, num):
-        var = {'address': self.counter, 'start': 0, 'end': 0, 'table': 0, 'iterator': 0, 'name': "",
-               'only_value': 1, 'value': num}
+        # jak taka liczba jest juz w tabeli to nie dodawac nastepnej tylko zwracac ta co juz jest
+        for numb in self.table:
+            if numb['name'] == str(num):
+                return numb
+        var = {'address': self.counter, 'start': 0, 'end': 0, 'table': 0, 'iterator': 0, 'name': str(num),
+               'only_value': 1, 'value': num, 'is_in_memory' : 0}
         self.counter += 1
+        self.table.append(var)
         return var
+
+

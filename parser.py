@@ -2,8 +2,11 @@ import ply.yacc as yacc
 from lexer import tokens
 import sys
 from SymbolTable import *
+from MachineCode import *
+from Expression import *
 
 symbol_table = SymbolTable()
+code = MachineCode();
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
@@ -38,8 +41,6 @@ def p_declarations_pidentifier(p):
 
 def p_declarations_pidentifier_num(p):
     'declarations : pidentifier LPAREN num COLON num RPAREN'
-    print("tablicaaaa")
-    print(p[1], p[3], p[5])
     symbol_table.add_table(p[1], p[3], p[5])
 
 
@@ -55,7 +56,7 @@ def p_commands_command(p):
 
 def p_command_identifier_expression(p):
     'command : identifier ASSIGN expression SEMICOLON'
-    pass
+    code.assign(p[3].register, p[1])
 
 
 def p_command_if_else(p):
@@ -90,37 +91,47 @@ def p_command_for_downto(p):
 
 def p_read(p):
     'command : READ identifier SEMICOLON'
-    pass
+    code.read(p[2])
+    p[2][0]['is_in_memory'] = 1
+    p[2][0]['value'] = 0
 
 
 def p_write(p):
     'command : WRITE value SEMICOLON'
-    pass
+    code.write(p[2])
+    if isinstance(p[2], list):
+        p[2] = p[2][0]
+    p[2]['is_in_memory'] = 1
 
 
 def p_expression_value(p):
     'expression : value'
-    pass
+    reg = code.expression_1(p[1])
+    p[0] = Expression(reg)
 
 
 def p_expression_plus(p):
     'expression : value PLUS value'
-    pass
+    reg = code.expression_plus_minus(p[1], p[3], p[2])
+    p[0] = Expression(reg)
 
 
 def p_expression_minus(p):
     'expression : value MINUS value'
-    pass
+    reg = code.expression_plus_minus(p[1], p[3], p[2])
+    p[0] = Expression(reg)
 
 
 def p_expression_times(p):
     'expression : value TIMES value'
-    pass
+    reg = code.expression_times(p[1], p[3])
+    p[0] = Expression(reg)
 
 
 def p_expression_divide(p):
     'expression : value DIVIDE value'
-    pass
+    reg = code.expression_divide(p[1], p[3])
+    p[0] = Expression(reg)
 
 
 def p_expression_modulo(p):
@@ -161,7 +172,6 @@ def p_condition_geq(p):
 def p_value_num(p):
     'value : num'
     p[0] = symbol_table.get_num(p[1])
-    print(p[1], p[0])
 
 
 def p_value_identifier(p):
@@ -185,7 +195,11 @@ def p_identifier_pidentifier_num(p):
 
 
 def p_error(p):
-    print("Jakis blad")
+    if p:
+        print("Syntax error at token", p.type)
+    else:
+        print("Syntax error at EOF")
+    exit(5)
 
 
 def main():
@@ -194,6 +208,12 @@ def main():
     parser = yacc.yacc()
     with open(inputFile, "r") as file:
         parser.parse(file.read())
+    c=0
+    for i in code.code:
+        print(c, i)
+        c += 1
+    for i in symbol_table.table:
+        print(i)
 
 
 if __name__ == "__main__":

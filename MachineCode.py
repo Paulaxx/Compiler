@@ -1,11 +1,12 @@
 from SymbolTable import *
+from Expression import *
 
 
 class MachineCode:
 
     def __init__(self):
         self.code = []
-        self.command = {'com': "",  'arg1': "", 'arg2': ""}
+        self.command = {'com': "", 'arg1': "", 'arg2': ""}
         # registers:
         self.r1 = {'name': 'a', 'value': -1}
         self.r2 = {'name': 'b', 'value': -1}
@@ -59,26 +60,26 @@ class MachineCode:
             command = {'com': "INC", 'arg1': r_name, 'arg2': ""}
             self.code.append(command)
         elif r_value < value:
-            while r_value*2 <= value:
+            while r_value * 2 <= value:
                 r_value *= 2
                 command = {'com': "SHL", 'arg1': r_name, 'arg2': ""}
                 self.code.append(command)
                 if r_value == value:
                     return
-            while r_value+1 <= value:
+            while r_value + 1 <= value:
                 r_value += 1
                 command = {'com': "INC", 'arg1': r_name, 'arg2': ""}
                 self.code.append(command)
                 if r_value == value:
                     return
         elif r_value > value:
-            while r_value//2 >= value:
+            while r_value // 2 >= value:
                 r_value //= 2
                 command = {'com': "SHR", 'arg1': r_name, 'arg2': ""}
                 self.code.append(command)
                 if r_value == value:
                     return
-            while r_value-1 >= value:
+            while r_value - 1 >= value:
                 r_value -= 1
                 command = {'com': "DEC", 'arg1': r_name, 'arg2': ""}
                 self.code.append(command)
@@ -129,3 +130,26 @@ class MachineCode:
             command = {'com': "PUT", 'arg1': reg['name'], 'arg2': ""}
             self.code.append(command)
             self.actualize_register_value(reg['name'], variable['address'])
+
+    def expression_1(self, variable):
+        if isinstance(variable, list):
+            variable = variable[0]
+        if variable['only_value'] == 1:
+            value = variable['value']
+            reg = self.get_register_by_value(value)
+            self.set_value_to_register(reg['name'], reg['value'], value)
+            self.actualize_register_value(reg['name'], value)
+            return reg
+        else:
+            if variable['value'] == -1:
+                print("Zmienna ", variable['name'], " nie zainicjalizowana")
+                sys.exit()
+            else:
+                address = variable['address']
+                reg = self.get_register_by_value(address)
+                self.set_value_to_register(reg['name'], reg['value'], address)
+                self.actualize_register_value(reg['name'], address)
+                command = {'com': "LOAD", 'arg1': reg['name'], 'arg2': reg['name']}
+                self.code.append(command)
+                self.actualize_register_value(reg['name'], -1)
+                return reg

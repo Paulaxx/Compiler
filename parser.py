@@ -3,6 +3,7 @@ from lexer import tokens
 import sys
 from SymbolTable import *
 from MachineCode import *
+from Expression import *
 
 symbol_table = SymbolTable()
 code = MachineCode();
@@ -55,7 +56,8 @@ def p_commands_command(p):
 
 def p_command_identifier_expression(p):
     'command : identifier ASSIGN expression SEMICOLON'
-    pass
+    if p[3] is not None:
+        print("Assign: ", p[3].register)
 
 
 def p_command_if_else(p):
@@ -105,7 +107,8 @@ def p_write(p):
 
 def p_expression_value(p):
     'expression : value'
-    pass
+    reg = code.expression_1(p[1])
+    p[0] = Expression(reg)
 
 
 def p_expression_plus(p):

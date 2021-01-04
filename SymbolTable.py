@@ -105,9 +105,14 @@ class SymbolTable:
             sys.exit()
 
     def get_num(self, num):
+        # jak taka liczba jest juz w tabeli to nie dodawac nastepnej tylko zwracac ta co juz jest
+        for numb in self.table:
+            if numb['name'] == str(num):
+                return numb
         var = {'address': self.counter, 'start': 0, 'end': 0, 'table': 0, 'iterator': 0, 'name': str(num),
                'only_value': 1, 'value': num, 'is_in_memory' : 0}
         self.counter += 1
+        self.table.append(var)
         return var
 
 

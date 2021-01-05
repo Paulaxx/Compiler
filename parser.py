@@ -57,6 +57,10 @@ def p_commands_command(p):
 def p_command_identifier_expression(p):
     'command : identifier ASSIGN expression SEMICOLON'
     code.assign(p[3].register, p[1])
+    if isinstance(p[1], list):
+        p[1][0]['value'] = 0
+    else:
+        p[1]['value'] = 0
 
 
 def p_command_if_else(p):
@@ -136,7 +140,8 @@ def p_expression_divide(p):
 
 def p_expression_modulo(p):
     'expression : value MODULO value'
-    pass
+    reg = code.expression_modulo(p[1], p[3])
+    p[0] = Expression(reg)
 
 
 def p_condition_equal(p):

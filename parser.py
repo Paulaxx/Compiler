@@ -70,23 +70,25 @@ def p_command_identifier_expression(p):
 def p_command_if_else(p):
     'command : IF condition THEN commands ELSE commands ENDIF'
     s1 = len(code.code)
+    code.if_else(p[2].jump, p[4].counter, p[6].counter)
     s2 = len(code.code)
-    p[0] = Command(s2-s1)
-    #print("IF_ELSE: ", p[4].counter, p[6].counter)
+    p[0] = Command(s2-s1 + p[2].counter + p[4].counter + p[6].counter)
 
 
 def p_command_if(p):
     'command : IF condition THEN commands ENDIF'
     s1 = len(code.code)
+    code.just_if(p[2].jump, s1)
     s2 = len(code.code)
-    p[0] = Command(s2 - s1)
+    p[0] = Command(s2 - s1 + p[2].counter + p[4].counter)
 
 
 def p_command_while(p):
     'command : WHILE condition DO commands ENDWHILE'
     s1 = len(code.code)
+    code.while_command(s1, p[2].jump, p[2].start)
     s2 = len(code.code)
-    p[0] = Command(s2 - s1)
+    p[0] = Command(s2 - s1 + p[2].counter + p[4].counter)
 
 
 def p_command_repeat_until(p):
@@ -179,28 +181,19 @@ def p_expression_modulo(p):
     p[0] = Expression(reg, s2-s1)
 
 
-def p_condition_equal(p):
-    'condition : value EQUALS value'
-
-
-def p_condition_not_equal(p):
-    'condition : value NOTEQUALS value'
-
-
-def p_condition_lesser(p):
-    'condition : value LESSER value'
-
-
-def p_condition_greater(p):
-    'condition : value GREATER value'
-
-
-def p_condition_leq(p):
-    'condition : value LEQ value'
-
-
-def p_condition_geq(p):
-    'condition : value GEQ value'
+def p_condition(p):
+    """
+    condition : value EQUALS value
+                | value NOTEQUALS value
+                | value LESSER value
+                | value GREATER value
+                | value LEQ value
+                | value GEQ value
+    """
+    s1 = len(code.code)
+    start, jump = code.condition_1(p[1], p[3], p[2])
+    s2 = len(code.code)
+    p[0] = Condition(start, jump, s2-s1)
 
 
 def p_value_num(p):

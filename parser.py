@@ -61,8 +61,10 @@ def p_command_identifier_expression(p):
     code.assign(p[3].register, p[1])
     if isinstance(p[1], list):
         p[1][0]['value'] = 0
+        p[1][0]['is_in_memory'] = 1
     else:
         p[1]['value'] = 0
+        p[1]['is_in_memory'] = 1
     s2 = len(code.code)
     p[0] = Command(s2-s1+p[3].counter)
 
@@ -94,8 +96,9 @@ def p_command_while(p):
 def p_command_repeat_until(p):
     'command : REPEAT commands UNTIL condition SEMICOLON'
     s1 = len(code.code)
+    code.repeat_until(p[2].counter+p[4].counter, p[4].jump)
     s2 = len(code.code)
-    p[0] = Command(s2 - s1)
+    p[0] = Command(s2 - s1 + p[2].counter + p[4].counter)
 
 
 def p_command_for(p):
@@ -118,6 +121,8 @@ def p_read(p):
     code.read(p[2])
     p[2][0]['is_in_memory'] = 1
     p[2][0]['value'] = 0
+    #p[2]['is_in_memory'] = 1
+    #p[2]['value'] = 0
     s2 = len(code.code)
     p[0] = Command(s2 - s1)
 
@@ -230,19 +235,22 @@ def p_error(p):
 
 
 def main():
-    inputFile = "test.imp"
-    # outFile = sys.argv[2]
+    inputFile = sys.argv[1]
+    # outputFile = sys.argv[2]
+    outputFile = "out.mr"
     parser = yacc.yacc()
     with open(inputFile, "r") as file:
         parser.parse(file.read())
+    """
     c=0
     for i in code.code:
         print(c, i)
         c += 1
     """
-    for i in symbol_table.table:
-        print(i)
-    """
+    with open(outputFile, "w") as file:
+        for i in code.code:
+            file.write(i['com'] + " " + str(i['arg1']) + " " + str(i['arg2']) + '\n')
+        file.write("HALT")
 
 
 if __name__ == "__main__":

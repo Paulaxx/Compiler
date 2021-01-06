@@ -149,6 +149,7 @@ class MachineCode:
 
     def read(self, variable):
         address = variable[0]['address']
+        #address = variable['address']
         reg = self.get_register_by_value(address)
         self.set_value_to_register(reg['name'], reg['value'], address)
         command = {'com': "GET", 'arg1': reg['name'], 'arg2': ""}
@@ -379,7 +380,7 @@ class MachineCode:
             self.actualize_register_value(reg2['name'], -1)
 
             self.set_value_to_register(reg3['name'], reg3['value'], 0)
-            self.actualize_register_value(reg3['name'], 0)
+            self.actualize_register_value(reg3['name'], -1)
 
             command = {'com': "JZERO", 'arg1': reg2['name'], 'arg2': str(3)}
             self.code.append(command)
@@ -597,6 +598,7 @@ class MachineCode:
         address_reg = self.get_register_diff(reg['name'])
         self.set_value_to_register(address_reg['name'], address_reg['value'], address)
         self.actualize_register_value(address_reg['name'], address)
+        self.actualize_register_value(reg['name'], -1)
         command = {'com': "STORE", 'arg1': reg['name'], 'arg2': address_reg['name']}
         self.code.append(command)
 
@@ -638,6 +640,8 @@ class MachineCode:
             reg2 = self.r6
             self.set_value_to_register(reg1['name'], -1, var1['value'])
             self.set_value_to_register(reg2['name'], -1, address2)
+            self.actualize_register_value(reg1['name'], -1)
+            self.actualize_register_value(reg2['name'], -1)
             command = {'com': "LOAD", 'arg1': reg2['name'], 'arg2': reg2['name']}
             self.code.append(command)
 
@@ -647,6 +651,8 @@ class MachineCode:
             reg2 = self.r6
             self.set_value_to_register(reg1['name'], -1, address1)
             self.set_value_to_register(reg2['name'], -1, var2['value'])
+            self.actualize_register_value(reg1['name'], -1)
+            self.actualize_register_value(reg2['name'], -1)
             command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
             self.code.append(command)
 
@@ -659,6 +665,8 @@ class MachineCode:
             command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
             self.code.append(command)
             self.set_value_to_register(reg2['name'], -1, address2)
+            self.actualize_register_value(reg1['name'], -1)
+            self.actualize_register_value(reg2['name'], -1)
             command = {'com': "LOAD", 'arg1': reg2['name'], 'arg2': reg2['name']}
             self.code.append(command)
 
@@ -718,19 +726,21 @@ class MachineCode:
         jump.append(len(self.code) - 1)
         return start, jump
 
-    def just_if(self, jump, len):
-        for i in jump:
-            how_many_skip = len - i
-            j = self.code[i]
-            if j['com'] == 'JZERO':
-                j['arg2'] = how_many_skip
-                self.code[i] = j
-            elif j['com'] == 'JUMP':
-                j['arg1'] == how_many_skip
-                self.code[i] = j
-                j['arg1'] == how_many_skip - 2
-                self.code[i + 2] = j
-                break
+    def just_if(self, jump, length):
+        if len(jump) == 1:
+            how_many_skip = length - jump[0]
+            j = self.code[jump[0]]
+            j['arg2'] = how_many_skip
+            self.code[jump[0]] = j
+        else:
+            how_many_skip = length - jump[0]
+            j = self.code[jump[0]]
+            j['arg1'] = how_many_skip
+            self.code[jump[0]] = j
+            j = self.code[jump[1]]
+            j['arg1'] = how_many_skip-2
+            self.code[jump[1]] = j
+
 
     def if_else(self, jump, then_l, else_l):
         if len(jump) == 1:
@@ -770,4 +780,20 @@ class MachineCode:
 
         back = length - start
         command = {'com': "JUMP", 'arg1': str(-back), 'arg2': ""}
+        self.code.append(command)
+
+    def repeat_until(self, length, jump):
+        if len(jump) == 1:
+            j = self.code[jump[0]]
+            j['arg2'] = 2
+            self.code[jump[0]] = j
+        else:
+            j = self.code[jump[1]]
+            j['arg1'] = 2
+            self.code[jump[1]] = j
+            j = self.code[jump[0]]
+            j['arg1'] = 4
+            self.code[jump[0]] = j
+
+        command = {'com': "JUMP", 'arg1': str(-length), 'arg2': ""}
         self.code.append(command)

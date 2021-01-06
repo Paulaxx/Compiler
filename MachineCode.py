@@ -147,7 +147,6 @@ class MachineCode:
         elif name == 'f':
             self.r6['value'] = new_value
 
-
     def read(self, variable):
         address = variable[0]['address']
         reg = self.get_register_by_value(address)
@@ -222,7 +221,7 @@ class MachineCode:
             if sign == '+':
                 result = var1['value'] + var2['value']
             elif sign == '-':
-                result = max(var1['value']-var2['value'], 0)
+                result = max(var1['value'] - var2['value'], 0)
             reg = self.get_register_by_value(result)
             self.set_value_to_register(reg['name'], reg['value'], result)
             self.actualize_register_value(reg['name'], result)
@@ -426,7 +425,7 @@ class MachineCode:
                 address2 = var2['address']
                 reg2, reg1, reg3, reg4 = self.get_4_registers(address2)
                 self.set_value_to_register(reg1['name'], reg1['value'], var1['value'])
-                self.set_value_to_register(reg4['name'], reg4['value'], var1['value']+1)
+                self.set_value_to_register(reg4['name'], reg4['value'], var1['value'] + 1)
                 self.actualize_register_value(reg1['name'], -1)
                 self.actualize_register_value(reg4['name'], -1)
                 self.actualize_register_value(reg3['name'], -1)
@@ -529,7 +528,7 @@ class MachineCode:
                 address2 = var2['address']
                 reg2, reg1, reg4 = self.get_3_registers(address2)
                 self.set_value_to_register(reg1['name'], reg1['value'], var1['value'])
-                self.set_value_to_register(reg4['name'], reg4['value'], var1['value']+1)
+                self.set_value_to_register(reg4['name'], reg4['value'], var1['value'] + 1)
                 self.actualize_register_value(reg1['name'], -1)
                 self.actualize_register_value(reg4['name'], -1)
                 self.actualize_register_value(reg2['name'], -1)
@@ -589,9 +588,6 @@ class MachineCode:
         self.code.append(command)
         return reg1
 
-
-
-
     def assign(self, reg, var):
         if isinstance(var, list):
             var = var[0]
@@ -602,4 +598,176 @@ class MachineCode:
         self.set_value_to_register(address_reg['name'], address_reg['value'], address)
         self.actualize_register_value(address_reg['name'], address)
         command = {'com': "STORE", 'arg1': reg['name'], 'arg2': address_reg['name']}
+        self.code.append(command)
+
+    def condition_1(self, var1, var2, sign):
+        if isinstance(var1, list):
+            var1 = var1[0]
+        if isinstance(var2, list):
+            var2 = var2[0]
+
+        start = len(self.code)
+        result = 0
+        jump = []
+        if var1['only_value'] == 1 and var2['only_value'] == 1:
+            if (var1['value'] == var2['value']) and (sign == '=' or sign == '>=' or sign == '<='):
+                result = 1
+            elif (var1['value'] == var2['value']) and (sign == '!=' or sign == '>' or sign == '<'):
+                result = 0
+            elif (var1['value'] > var2['value']) and (sign == '!=' or sign == '>=' or sign == '>'):
+                result = 1
+            elif (var1['value'] > var2['value']) and (sign == '=' or sign == '<=' or sign == '<'):
+                result = 0
+            elif (var1['value'] < var2['value']) and (sign == '!=' or sign == '<=' or sign == '<'):
+                result = 1
+            elif (var1['value'] < var2['value']) and (sign == '=' or sign == '>=' or sign == '>'):
+                result = 0
+
+            if result == 1:
+                jump = -1  # nie pisac jumpa bo warunek zawsze prawdziwy
+            else:
+                command = {'com': "JUMP", 'arg1': "", 'arg2': ""}
+                self.code.append(command)
+                jump = len(self.code) - 1
+
+            return start, jump
+
+        elif var1['only_value'] == 1 and var2['only_value'] == 0:
+            address2 = var2['address']
+            reg1 = self.r5
+            reg2 = self.r6
+            self.set_value_to_register(reg1['name'], -1, var1['value'])
+            self.set_value_to_register(reg2['name'], -1, address2)
+            command = {'com': "LOAD", 'arg1': reg2['name'], 'arg2': reg2['name']}
+            self.code.append(command)
+
+        elif var1['only_value'] == 0 and var2['only_value'] == 1:
+            address1 = var1['address']
+            reg1 = self.r5
+            reg2 = self.r6
+            self.set_value_to_register(reg1['name'], -1, address1)
+            self.set_value_to_register(reg2['name'], -1, var2['value'])
+            command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+
+        else:
+            address1 = var1['address']
+            address2 = var2['address']
+            reg1 = self.r5
+            reg2 = self.r6
+            self.set_value_to_register(reg1['name'], -1, address1)
+            command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+            self.set_value_to_register(reg2['name'], -1, address2)
+            command = {'com': "LOAD", 'arg1': reg2['name'], 'arg2': reg2['name']}
+            self.code.append(command)
+
+        if sign == '>':
+            command = {'com': "SUB", 'arg1': reg1['name'], 'arg2': reg2['name']}
+            self.code.append(command)
+            command = {'com': "JZERO", 'arg1': reg1['name'], 'arg2': ""}
+            self.code.append(command)
+        elif sign == '<':
+            command = {'com': "SUB", 'arg1': reg2['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+            command = {'com': "JZERO", 'arg1': reg2['name'], 'arg2': ""}
+            self.code.append(command)
+        elif sign == '>=':
+            command = {'com': "INC", 'arg1': reg1['name'], 'arg2': ""}
+            self.code.append(command)
+            command = {'com': "SUB", 'arg1': reg1['name'], 'arg2': reg2['name']}
+            self.code.append(command)
+            command = {'com': "JZERO", 'arg1': reg1['name'], 'arg2': ""}
+            self.code.append(command)
+        elif sign == '<=':
+            command = {'com': "INC", 'arg1': reg2['name'], 'arg2': ""}
+            self.code.append(command)
+            command = {'com': "SUB", 'arg1': reg2['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+            command = {'com': "JZERO", 'arg1': reg2['name'], 'arg2': ""}
+            self.code.append(command)
+        elif sign == '=' or sign == '!=':
+            reg3 = self.r4
+            command = {'com': "RESET", 'arg1': reg3['name'], 'arg2': ""}
+            self.code.append(command)
+            command = {'com': "ADD", 'arg1': reg3['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+            command = {'com': "SUB", 'arg1': reg1['name'], 'arg2': reg2['name']}
+            self.code.append(command)
+            command = {'com': "SUB", 'arg1': reg2['name'], 'arg2': reg3['name']}
+            self.code.append(command)
+
+            if sign == '=':
+                command = {'com': "JZERO", 'arg1': reg1['name'], 'arg2': str(2)}
+                self.code.append(command)
+                command = {'com': "JUMP", 'arg1': "", 'arg2': ""}
+                self.code.append(command)
+                jump.append(len(self.code) - 1)
+                command = {'com': "JZERO", 'arg1': reg2['name'], 'arg2': str(2)}
+                self.code.append(command)
+                command = {'com': "JUMP", 'arg1': "", 'arg2': ""}
+                self.code.append(command)
+            elif sign == '!=':
+                command = {'com': "JZERO", 'arg1': reg1['name'], 'arg2': str(2)}
+                self.code.append(command)
+                command = {'com': "JUMP", 'arg1': str(2), 'arg2': ""}
+                self.code.append(command)
+                command = {'com': "JZERO", 'arg1': reg2['name'], 'arg2': ""}
+                self.code.append(command)
+
+        jump.append(len(self.code) - 1)
+        return start, jump
+
+    def just_if(self, jump, len):
+        for i in jump:
+            how_many_skip = len - i
+            j = self.code[i]
+            if j['com'] == 'JZERO':
+                j['arg2'] = how_many_skip
+                self.code[i] = j
+            elif j['com'] == 'JUMP':
+                j['arg1'] == how_many_skip
+                self.code[i] = j
+                j['arg1'] == how_many_skip - 2
+                self.code[i + 2] = j
+                break
+
+    def if_else(self, jump, then_l, else_l):
+        if len(jump) == 1:
+            how_many_skip = then_l+1
+            j = self.code[jump[0]]
+            j['arg2'] = how_many_skip
+            self.code[jump[0]] = j
+
+        else:
+            how_many_skip = then_l + 1 + 2
+            j = self.code[jump[0]]
+            j['arg1'] = how_many_skip
+            self.code[jump[0]] = j
+            how_many_skip -= 2
+            j = self.code[jump[1]]
+            j['arg1'] = how_many_skip
+            self.code[jump[1]] = j
+
+        command = {'com': "JUMP", 'arg1': str(else_l + 1), 'arg2': ""}
+        self.code.insert(jump[0] + then_l + 1, command)
+
+    def while_command(self, length, jump, start):
+        if len(jump) == 1:
+            how_many_skip = length - jump[0] + 1
+            j = self.code[jump[0]]
+            j['arg2'] = how_many_skip
+            self.code[jump[0]] = j
+        else:
+            how_many_skip = length - jump[1] + 1
+            j = self.code[jump[1]]
+            j['arg1'] = how_many_skip
+            self.code[jump[1]] = j
+            how_many_skip += 2
+            j = self.code[jump[0]]
+            j['arg1'] = how_many_skip
+            self.code[jump[0]] = j
+
+        back = length - start
+        command = {'com': "JUMP", 'arg1': str(-back), 'arg2': ""}
         self.code.append(command)

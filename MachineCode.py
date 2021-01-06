@@ -590,8 +590,6 @@ class MachineCode:
         return reg1
 
 
-
-
     def assign(self, reg, var):
         if isinstance(var, list):
             var = var[0]
@@ -603,3 +601,34 @@ class MachineCode:
         self.actualize_register_value(address_reg['name'], address)
         command = {'com': "STORE", 'arg1': reg['name'], 'arg2': address_reg['name']}
         self.code.append(command)
+
+    def condition_1(self, var1, var2, sign):
+        if isinstance(var1, list):
+            var1 = var1[0]
+        if isinstance(var2, list):
+            var2 = var2[0]
+
+        start = len(self.code)
+        result = 0
+        if var1['only_value'] == 1 and var2['only_value'] == 1:
+            if (var1['value'] == var2['value']) and (sign == '=' or sign == '>=' or sign == '<='):
+                result = 1
+            elif (var1['value'] == var2['value']) and (sign == '!=' or sign == '>' or sign == '<'):
+                result = 0
+            elif (var1['value'] > var2['value']) and (sign == '!=' or sign == '>=' or sign == '>'):
+                result = 1
+            elif (var1['value'] > var2['value']) and (sign == '=' or sign == '<=' or sign == '<'):
+                result = 0
+            elif (var1['value'] < var2['value']) and (sign == '!=' or sign == '<=' or sign == '<'):
+                result = 1
+            elif (var1['value'] < var2['value']) and (sign == '=' or sign == '>=' or sign == '>'):
+                result = 0
+
+            if result == 1:
+                jump = -1 # nie pisac jumpa bo warunek zawsze falszywy, nie ma do czego wracac
+            else:
+                command = {'com': "JUMP", 'arg1': "", 'arg2': ""}
+                self.code.append(command)
+                jump = len(self.code)
+
+            return start, jump

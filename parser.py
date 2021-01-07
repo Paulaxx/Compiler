@@ -235,9 +235,10 @@ def p_error(p):
 
 
 def main():
-    inputFile = sys.argv[1]
+    #inputFile = sys.argv[1]
+    inputFile = "test3.imp"
     # outputFile = sys.argv[2]
-    outputFile = "out.mr"
+    outputFile = "out2.mr"
     parser = yacc.yacc()
     with open(inputFile, "r") as file:
         parser.parse(file.read())

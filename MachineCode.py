@@ -483,6 +483,8 @@ class MachineCode:
             self.actualize_register_value(reg3['name'], -1)
             self.actualize_register_value(reg2['name'], -1)
 
+        command = {'com': "JZERO", 'arg1': reg2['name'], 'arg2': str(8)}
+        self.code.append(command)
         command = {'com': "SUB", 'arg1': reg1['name'], 'arg2': reg2['name']}
         self.code.append(command)
         command = {'com': "SUB", 'arg1': reg4['name'], 'arg2': reg2['name']}
@@ -580,6 +582,14 @@ class MachineCode:
             self.actualize_register_value(reg4['name'], -1)
             self.actualize_register_value(reg2['name'], -1)
 
+        command = {'com': "JZERO", 'arg1': reg2['name'], 'arg2': str(2)}
+        self.code.append(command)
+        command = {'com': "JUMP", 'arg1': str(3), 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "RESET", 'arg1': reg1['name'], 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "JUMP", 'arg1': str(5), 'arg2': ""}
+        self.code.append(command)
         command = {'com': "SUB", 'arg1': reg4['name'], 'arg2': reg2['name']}
         self.code.append(command)
         command = {'com': "JZERO", 'arg1': reg4['name'], 'arg2': str(3)}

@@ -236,13 +236,16 @@ def p_error(p):
 
 def main():
     # inputFile = sys.argv[1]
-    inputFile = "test3.imp"
+    inputFile = "test.imp"
     # outputFile = sys.argv[2]
     outputFile = "out.mr"
     parser = yacc.yacc()
     with open(inputFile, "r") as file:
         parser.parse(file.read())
-    """
+
+
+    for i in symbol_table.table:
+        print(i)
     c=0
     for i in code.code:
         print(c, i)
@@ -252,6 +255,7 @@ def main():
         for i in code.code:
             file.write(i['com'] + " " + str(i['arg1']) + " " + str(i['arg2']) + '\n')
         file.write("HALT")
+    """
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ class SymbolTable:
             'iterator': 0,
             'name': "",
             'only_value': 0,
-            'value': -1,
+            'value': -1, # -2 -> tablica na pozycji zmiennej
             'is_in_memory' : 0
         }
         self.counter = 0
@@ -67,7 +67,7 @@ class SymbolTable:
             else:
                 new_name = name + "(" + str(num) + ")"
                 address = find[0]['address'] + num - find[0]['start']
-                var = {'address': address, 'start': 0, 'end': 0, 'table': 0, 'iterator': 0, 'name': new_name,
+                var = {'address': address, 'start': 0, 'end': 0, 'table': 1, 'iterator': 0, 'name': new_name,
                        'only_value': 0, 'value': -1, 'is_in_memory' : 0}
                 return var
         else:
@@ -89,14 +89,13 @@ class SymbolTable:
                     elif find2[0]['value'] == -1:
                         print("Zmienna ", pid, " nie zainicjalizowana")
                         sys.exit()
-                    elif find2[0]['value'] < find[0]['start'] or find2[0]['value'] > find[0]['end']:
-                        print("Tablica ", name, " nie ma pozycji ", find2[0]['value'])
-                        sys.exit()
+
                     else:
-                        address = find[0]['address'] + find2[0]['value']
-                        var = {'address': address, 'start': 0, 'end': 0, 'table': 0, 'iterator': 0, 'name': "",
-                               'only_value': 0, 'value': -1, 'is_in_memory' : 0}
+                        address = find[0]['address'] - find[0]['start']  # potem dodac wartosc z adresu zmiennej pid
+                        var = {'address': address, 'start': 0, 'end': 0, 'table': 1, 'iterator': 0,
+                               'name': str(find2[0]['address']), 'only_value': -2, 'value': -2, 'is_in_memory' : 0}
                         return var
+
                 else:
                     print("Zmienna ", pid, " nie zadeklarowana")
 

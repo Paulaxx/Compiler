@@ -163,7 +163,8 @@ class MachineCode:
         if variable['value'] == -1:
             print("Zmienna nie zainicjalizowana")
             sys.exit()
-        if variable['is_in_memory'] == 0:
+
+        if variable['only_value'] == 1 and variable['is_in_memory'] == 0:
             reg1, reg2 = self.get_2_registers(variable['value'])
             self.set_value_to_register(reg1['name'], reg1['value'], variable['value'])
             self.set_value_to_register(reg2['name'], reg2['value'], variable['address'])
@@ -173,12 +174,19 @@ class MachineCode:
             self.code.append(command)
             self.actualize_register_value(reg1['name'], -1)
             self.actualize_register_value(reg2['name'], -1)
-        else:
+        elif variable['only_value'] == 1 and variable['is_in_memory'] == 1:
             reg = self.get_register_by_value(variable['address'])
             self.set_value_to_register(reg['name'], reg['value'], variable['address'])
             command = {'com': "PUT", 'arg1': reg['name'], 'arg2': ""}
             self.code.append(command)
             self.actualize_register_value(reg['name'], variable['address'])
+        elif variable['only_value'] == 0:
+            reg = self.get_register_by_value(variable['address'])
+            self.set_value_to_register(reg['name'], reg['value'], variable['address'])
+            command = {'com': "PUT", 'arg1': reg['name'], 'arg2': ""}
+            self.code.append(command)
+            self.actualize_register_value(reg['name'], variable['address'])
+
 
     def expression_1(self, variable):
         if isinstance(variable, list):

@@ -66,7 +66,7 @@ def p_command_identifier_expression(p):
         p[1]['value'] = 0
         p[1]['is_in_memory'] = 1
     s2 = len(code.code)
-    p[0] = Command(s2-s1+p[3].counter)
+    p[0] = Command(s2 - s1 + p[3].counter)
 
 
 def p_command_if_else(p):
@@ -74,7 +74,7 @@ def p_command_if_else(p):
     s1 = len(code.code)
     code.if_else(p[2].jump, p[4].counter, p[6].counter)
     s2 = len(code.code)
-    p[0] = Command(s2-s1 + p[2].counter + p[4].counter + p[6].counter)
+    p[0] = Command(s2 - s1 + p[2].counter + p[4].counter + p[6].counter)
 
 
 def p_command_if(p):
@@ -96,7 +96,7 @@ def p_command_while(p):
 def p_command_repeat_until(p):
     'command : REPEAT commands UNTIL condition SEMICOLON'
     s1 = len(code.code)
-    code.repeat_until(p[2].counter+p[4].counter, p[4].jump)
+    code.repeat_until(p[2].counter + p[4].counter, p[4].jump)
     s2 = len(code.code)
     p[0] = Command(s2 - s1 + p[2].counter + p[4].counter)
 
@@ -120,9 +120,9 @@ def p_read(p):
     s1 = len(code.code)
     code.read(p[2])
     p[2][0]['is_in_memory'] = 1
-    p[2][0]['value'] = 0
-    #p[2]['is_in_memory'] = 1
-    #p[2]['value'] = 0
+    p[2][0]['value'] = 0  # zainicjalizowana
+    # p[2]['is_in_memory'] = 1
+    # p[2]['value'] = 0
     s2 = len(code.code)
     p[0] = Command(s2 - s1)
 
@@ -143,7 +143,7 @@ def p_expression_value(p):
     s1 = len(code.code)
     reg = code.expression_1(p[1])
     s2 = len(code.code)
-    p[0] = Expression(reg, s2-s1)
+    p[0] = Expression(reg, s2 - s1)
 
 
 def p_expression_plus(p):
@@ -151,7 +151,7 @@ def p_expression_plus(p):
     s1 = len(code.code)
     reg = code.expression_plus_minus(p[1], p[3], p[2])
     s2 = len(code.code)
-    p[0] = Expression(reg, s2-s1)
+    p[0] = Expression(reg, s2 - s1)
 
 
 def p_expression_minus(p):
@@ -159,7 +159,7 @@ def p_expression_minus(p):
     s1 = len(code.code)
     reg = code.expression_plus_minus(p[1], p[3], p[2])
     s2 = len(code.code)
-    p[0] = Expression(reg, s2-s1)
+    p[0] = Expression(reg, s2 - s1)
 
 
 def p_expression_times(p):
@@ -167,7 +167,7 @@ def p_expression_times(p):
     s1 = len(code.code)
     reg = code.expression_times(p[1], p[3])
     s2 = len(code.code)
-    p[0] = Expression(reg, s2-s1)
+    p[0] = Expression(reg, s2 - s1)
 
 
 def p_expression_divide(p):
@@ -175,7 +175,7 @@ def p_expression_divide(p):
     s1 = len(code.code)
     reg = code.expression_divide(p[1], p[3])
     s2 = len(code.code)
-    p[0] = Expression(reg, s2-s1)
+    p[0] = Expression(reg, s2 - s1)
 
 
 def p_expression_modulo(p):
@@ -183,7 +183,7 @@ def p_expression_modulo(p):
     s1 = len(code.code)
     reg = code.expression_modulo(p[1], p[3])
     s2 = len(code.code)
-    p[0] = Expression(reg, s2-s1)
+    p[0] = Expression(reg, s2 - s1)
 
 
 def p_condition(p):
@@ -198,7 +198,7 @@ def p_condition(p):
     s1 = len(code.code)
     start, jump = code.condition_1(p[1], p[3], p[2])
     s2 = len(code.code)
-    p[0] = Condition(start, jump, s2-s1)
+    p[0] = Condition(start, jump, s2 - s1)
 
 
 def p_value_num(p):
@@ -235,10 +235,10 @@ def p_error(p):
 
 
 def main():
-    #inputFile = sys.argv[1]
-    inputFile = "test4.imp"
+    # inputFile = sys.argv[1]
+    inputFile = "test3.imp"
     # outputFile = sys.argv[2]
-    outputFile = "out2.mr"
+    outputFile = "out.mr"
     parser = yacc.yacc()
     with open(inputFile, "r") as file:
         parser.parse(file.read())

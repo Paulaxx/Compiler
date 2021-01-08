@@ -94,6 +94,7 @@ class MachineCode:
             return self.r6
 
     def set_value_to_register(self, r_name, r_value, value):
+        r_value = -1
         if r_value == -1:
             r_value = 0
             command = {'com': "RESET", 'arg1': r_name, 'arg2': ""}
@@ -162,7 +163,8 @@ class MachineCode:
         if variable['value'] == -1:
             print("Zmienna nie zainicjalizowana")
             sys.exit()
-        if variable['is_in_memory'] == 0:
+
+        if variable['only_value'] == 1 and variable['is_in_memory'] == 0:
             reg1, reg2 = self.get_2_registers(variable['value'])
             self.set_value_to_register(reg1['name'], reg1['value'], variable['value'])
             self.set_value_to_register(reg2['name'], reg2['value'], variable['address'])
@@ -170,14 +172,21 @@ class MachineCode:
             self.code.append(command)
             command = {'com': "PUT", 'arg1': reg2['name'], 'arg2': ""}
             self.code.append(command)
-            self.actualize_register_value(reg1['name'], variable['value'])
-            self.actualize_register_value(reg2['name'], variable['address'])
-        else:
+            self.actualize_register_value(reg1['name'], -1)
+            self.actualize_register_value(reg2['name'], -1)
+        elif variable['only_value'] == 1 and variable['is_in_memory'] == 1:
             reg = self.get_register_by_value(variable['address'])
             self.set_value_to_register(reg['name'], reg['value'], variable['address'])
             command = {'com': "PUT", 'arg1': reg['name'], 'arg2': ""}
             self.code.append(command)
             self.actualize_register_value(reg['name'], variable['address'])
+        elif variable['only_value'] == 0:
+            reg = self.get_register_by_value(variable['address'])
+            self.set_value_to_register(reg['name'], reg['value'], variable['address'])
+            command = {'com': "PUT", 'arg1': reg['name'], 'arg2': ""}
+            self.code.append(command)
+            self.actualize_register_value(reg['name'], variable['address'])
+
 
     def expression_1(self, variable):
         if isinstance(variable, list):
@@ -482,6 +491,8 @@ class MachineCode:
             self.actualize_register_value(reg3['name'], -1)
             self.actualize_register_value(reg2['name'], -1)
 
+        command = {'com': "JZERO", 'arg1': reg2['name'], 'arg2': str(8)}
+        self.code.append(command)
         command = {'com': "SUB", 'arg1': reg1['name'], 'arg2': reg2['name']}
         self.code.append(command)
         command = {'com': "SUB", 'arg1': reg4['name'], 'arg2': reg2['name']}
@@ -579,6 +590,14 @@ class MachineCode:
             self.actualize_register_value(reg4['name'], -1)
             self.actualize_register_value(reg2['name'], -1)
 
+        command = {'com': "JZERO", 'arg1': reg2['name'], 'arg2': str(2)}
+        self.code.append(command)
+        command = {'com': "JUMP", 'arg1': str(3), 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "RESET", 'arg1': reg1['name'], 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "JUMP", 'arg1': str(5), 'arg2': ""}
+        self.code.append(command)
         command = {'com': "SUB", 'arg1': reg4['name'], 'arg2': reg2['name']}
         self.code.append(command)
         command = {'com': "JZERO", 'arg1': reg4['name'], 'arg2': str(3)}
@@ -741,22 +760,21 @@ class MachineCode:
             j['arg1'] = how_many_skip-2
             self.code[jump[1]] = j
 
-
     def if_else(self, jump, then_l, else_l):
         if len(jump) == 1:
             how_many_skip = then_l+1
             j = self.code[jump[0]]
-            j['arg2'] = how_many_skip
+            j['arg2'] = how_many_skip+1
             self.code[jump[0]] = j
 
         else:
             how_many_skip = then_l + 1 + 2
             j = self.code[jump[0]]
-            j['arg1'] = how_many_skip
+            j['arg1'] = how_many_skip+1
             self.code[jump[0]] = j
             how_many_skip -= 2
             j = self.code[jump[1]]
-            j['arg1'] = how_many_skip
+            j['arg1'] = how_many_skip+1
             self.code[jump[1]] = j
 
         command = {'com': "JUMP", 'arg1': str(else_l + 1), 'arg2': ""}

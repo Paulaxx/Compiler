@@ -278,7 +278,7 @@ class MachineCode:
             self.actualize_register_value(reg['name'], value)
             return reg
         else:
-            if variable['value'] == -1:
+            if variable['value'] == -1 and variable['table'] == 0:
                 print("Zmienna ", variable['name'], " nie zainicjalizowana")
                 sys.exit()
             else:
@@ -1567,3 +1567,7 @@ class MachineCode:
 
         command = {'com': "JUMP", 'arg1': str(-length), 'arg2': ""}
         self.code.append(command)
+
+    def delete_alt_orders(self, how_many):
+        for i in range(how_many):
+            self.code.pop()

@@ -82,7 +82,7 @@ class SymbolTable:
                 sys.exit()
             else:
                 find2 = list(filter(lambda variable: variable['name'] == pid, self.table))
-                if find:
+                if find2:
                     if find2[0]['table'] == 1:
                         print("Tablica w tablicy")
                         sys.exit()

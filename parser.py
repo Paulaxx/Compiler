@@ -96,7 +96,23 @@ def p_command_while(p):
 def p_command_repeat_until(p):
     'command : REPEAT commands UNTIL condition SEMICOLON'
     s1 = len(code.code)
-    code.repeat_until(p[2].counter + p[4].counter, p[4].jump)
+    code.delete_alt_orders(p[4].counter)
+    s11 = len(code.code)
+    if p[4].sign == '=':
+        sign = '!='
+    elif p[4].sign == '!=':
+        sign = '='
+    elif p[4].sign == '>':
+        sign = '<='
+    elif p[4].sign == '<':
+        sign = '>='
+    elif p[4].sign == '>=':
+        sign = '<'
+    else:
+        sign = '>'
+    start, jump = code.condition_1(p[4].value1, p[4].value2, sign)
+    s22 = len(code.code)
+    code.repeat_until(p[2].counter + s22-s11, jump)
     s2 = len(code.code)
     p[0] = Command(s2 - s1 + p[2].counter + p[4].counter)
 
@@ -119,8 +135,10 @@ def p_read(p):
     'command : READ identifier SEMICOLON'
     s1 = len(code.code)
     code.read(p[2])
-    p[2][0]['is_in_memory'] = 1
-    p[2][0]['value'] = 0  # zainicjalizowana
+    if isinstance(p[2], list):
+        p[2] = p[2][0]
+    p[2]['is_in_memory'] = 1
+    p[2]['value'] = 0  # zainicjalizowana
     # p[2]['is_in_memory'] = 1
     # p[2]['value'] = 0
     s2 = len(code.code)
@@ -198,7 +216,7 @@ def p_condition(p):
     s1 = len(code.code)
     start, jump = code.condition_1(p[1], p[3], p[2])
     s2 = len(code.code)
-    p[0] = Condition(start, jump, s2 - s1)
+    p[0] = Condition(start, jump, s2 - s1, p[1], p[3], p[2])
 
 
 def p_value_num(p):
@@ -243,7 +261,7 @@ def main():
     with open(inputFile, "r") as file:
         parser.parse(file.read())
 
-
+    """
     for i in symbol_table.table:
         print(i)
     c=0
@@ -255,7 +273,6 @@ def main():
         for i in code.code:
             file.write(i['com'] + " " + str(i['arg1']) + " " + str(i['arg2']) + '\n')
         file.write("HALT")
-    """
 
 
 if __name__ == "__main__":

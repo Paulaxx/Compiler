@@ -127,6 +127,29 @@ def p_command_for(p):
 def p_command_for_downto(p):
     'command : FOR pidentifier FROM value DOWNTO value DO commands ENDFOR'
     s1 = len(code.code)
+    p[2] = symbol_table.get_variable(p[2])
+    reg = code.expression_1(p[4])
+    code.assign(reg, p[2], iterator=1)
+    p[6] = symbol_table.get_lim_of_iterator(p[2], p[6])
+    reg = code.expression_1(p[6])
+    code.assign(reg, p[6], iterator=1)
+
+    where_to_jump = len(code.code)
+    s111 = len(code.code)
+    start, jump = code.condition_1(p[2], p[6], '>=')
+    s222 = len(code.code)
+    code.for_jump(jump, p[8].counter)
+    gen_code = code.copy_code(s1)
+    where_condition_jump = code.insert_into_code(gen_code, s1-p[8].counter)
+
+    s11 = len(code.code)
+    code.for_dec_iterator(p[2])
+    s22 = len(code.code)
+    code.for_jump2(where_condition_jump, s22-s11)
+
+    code.add_jump_to_for((s22-s11) + p[8].counter + (s222-s111))
+
+    #symbol_table.delete_iterator_lim(p[2], p[6])
     s2 = len(code.code)
     p[0] = Command(s2 - s1)
 
@@ -261,9 +284,12 @@ def main():
     with open(inputFile, "r") as file:
         parser.parse(file.read())
 
-    """
     for i in symbol_table.table:
         print(i)
+        if i['iterator'] == 1:
+            print("Zmienna ", i['name'], " nie zadeklarowana")
+            #sys.exit()
+    """
     c=0
     for i in code.code:
         print(c, i)

@@ -52,8 +52,20 @@ class SymbolTable:
             else:
                 return find
         else:
-            print("Zmienna ", name, " nie zadeklarowana")
-            sys.exit()
+            var = {'address': self.counter, 'start': "", 'end': "", 'table': 0, 'iterator': 1, 'name': name,
+                   'only_value': 0, 'value': -1, 'is_in_memory': 0}
+            self.counter += 1
+            self.table.append(var)
+            return var
+            #print("Zmienna ", name, " nie zadeklarowana")
+            #sys.exit()
+
+    def get_lim_of_iterator(self, iterator, lim):
+        name = iterator[0]['name']
+        var = {'address': self.counter, 'start': "", 'end': "", 'table': 0, 'iterator': 1, 'name': name,
+               'only_value': 0, 'value': -1, 'is_in_memory': 0}
+        self.counter += 1
+        return var
 
     def get_table_on_position_num(self, name, num):
         find = list(filter(lambda variable: variable['name'] == name, self.table))
@@ -113,5 +125,14 @@ class SymbolTable:
         self.counter += 1
         self.table.append(var)
         return var
+
+    def delete_iterator_lim(self, iterator, lim):
+        i = next((i for i, item in enumerate(self.table) if item["name"] == iterator), None)
+        self.table.pop(i)
+        i = next((i for i, item in enumerate(self.table) if item["name"] == lim), None)
+        self.table.pop(i)
+
+
+
 
 

@@ -1587,13 +1587,18 @@ class MachineCode:
         j['arg2'] = how_many
         self.code[jump[0]] = j
 
-    def for_dec_iterator(self, iterator):
+    def for_dec_iterator(self, iterator, sign):
         address = iterator[0]['address']
-        reg = self.get_register_by_value(address)
+        reg, reg2 = self.get_2_registers(address)
         self.set_value_to_register(reg['name'], reg['value'], address)
-        command = {'com': "LOAD", 'arg1': reg['name'], 'arg2': reg['name']}
+        command = {'com': "LOAD", 'arg1': reg2['name'], 'arg2': reg['name']}
         self.code.append(command)
-        command = {'com': "DEC", 'arg1': reg['name'], 'arg2': ""}
+        if sign == '-':
+            command = {'com': "DEC", 'arg1': reg2['name'], 'arg2': ""}
+        elif sign == '+':
+            command = {'com': "INC", 'arg1': reg2['name'], 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "STORE", 'arg1': reg2['name'], 'arg2': reg['name']}
         self.code.append(command)
 
     def for_jump2(self, jump, how_many_add):
@@ -1603,4 +1608,15 @@ class MachineCode:
 
     def add_jump_to_for(self, how_many_jump):
         command = {'com': "JUMP", 'arg1': str(-how_many_jump), 'arg2': ""}
+        self.code.append(command)
+
+    def load_to_memory(self, add_from, add_to):
+        reg1, reg2 = self.get_2_registers(add_to)
+        self.set_value_to_register(reg1['name'], reg1['value'], add_from)
+        command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
+        self.code.append(command)
+        self.actualize_register_value(reg1['name'], -1)
+        self.set_value_to_register(reg2['name'], reg2['value'], add_to)
+        self.actualize_register_value(reg2['name'], add_to)
+        command = {'com': "STORE", 'arg1': reg1['name'], 'arg2': reg2['name']}
         self.code.append(command)

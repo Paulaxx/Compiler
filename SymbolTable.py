@@ -61,9 +61,13 @@ class SymbolTable:
             #sys.exit()
 
     def get_lim_of_iterator(self, iterator, lim):
-        name = iterator[0]['name']
-        var = {'address': self.counter, 'start': "", 'end': "", 'table': 0, 'iterator': 1, 'name': name,
-               'only_value': 0, 'value': -1, 'is_in_memory': 0}
+        if isinstance(iterator, list):
+            iterator = iterator[0]
+        if isinstance(lim, list):
+            lim = lim[0]
+        name = iterator['name']
+        var = {'address': self.counter, 'start': lim['address'], 'end': "", 'table': 0, 'iterator': 1, 'name': name,
+               'only_value': lim['only_value'], 'value': lim['only_value'], 'is_in_memory': lim['only_value']}
         self.counter += 1
         return var
 
@@ -110,6 +114,7 @@ class SymbolTable:
 
                 else:
                     print("Zmienna ", pid, " nie zadeklarowana")
+                    # dopisac zwracanie iteratora
 
         else:
             print("Tablica ", name, " nie zadeklarowana")
@@ -127,10 +132,12 @@ class SymbolTable:
         return var
 
     def delete_iterator_lim(self, iterator, lim):
-        i = next((i for i, item in enumerate(self.table) if item["name"] == iterator), None)
+        if isinstance(iterator, list):
+            iterator = iterator[0]
+        i = next((i for i, item in enumerate(self.table) if item["name"] == iterator['name']), None)
         self.table.pop(i)
-        i = next((i for i, item in enumerate(self.table) if item["name"] == lim), None)
-        self.table.pop(i)
+        i = next((i for i, item in enumerate(self.table) if item["name"] == iterator['name']), None)
+        #self.table.pop(i)
 
 
 

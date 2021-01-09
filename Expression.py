@@ -10,7 +10,10 @@ class Command:
 
 
 class Condition:
-    def __init__(self, start, jump, counter):
+    def __init__(self, start, jump, counter, value1, value2, sign):
         self.start = start
         self.jump = jump
         self.counter = counter
+        self.value1 = value1
+        self.value2 = value2
+        self.sign = sign

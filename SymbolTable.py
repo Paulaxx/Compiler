@@ -52,8 +52,27 @@ class SymbolTable:
             else:
                 return find
         else:
-            print("Zmienna ", name, " nie zadeklarowana")
-            sys.exit()
+            var = {'address': self.counter, 'start': "", 'end': "", 'table': 0, 'iterator': 1, 'name': name,
+                   'only_value': 0, 'value': -1, 'is_in_memory': 0}
+            self.counter += 1
+            self.table.append(var)
+            return var
+            #print("Zmienna ", name, " nie zadeklarowana")
+            #sys.exit()
+
+    def get_lim_of_iterator(self, iterator, lim):
+        if isinstance(iterator, list):
+            iterator = iterator[0]
+        if isinstance(lim, list):
+            lim = lim[0]
+        if lim['only_value'] == -2:
+            name = lim['name']
+        else:
+            name = iterator['name']
+        var = {'address': self.counter, 'start': lim['address'], 'end': "", 'table': 0, 'iterator': 1, 'name': name,
+               'only_value': lim['only_value'], 'value': lim['value'], 'is_in_memory': lim['is_in_memory']}
+        self.counter += 1
+        return var
 
     def get_table_on_position_num(self, name, num):
         find = list(filter(lambda variable: variable['name'] == name, self.table))
@@ -86,9 +105,9 @@ class SymbolTable:
                     if find2[0]['table'] == 1:
                         print("Tablica w tablicy")
                         sys.exit()
-                    elif find2[0]['value'] == -1:
-                        print("Zmienna ", pid, " nie zainicjalizowana")
-                        sys.exit()
+                    #elif find2[0]['value'] == -1:
+                    #    print("Zmienna ", pid, " nie zainicjalizowana")
+                    #    sys.exit()
 
                     else:
                         address = find[0]['address'] - find[0]['start']  # potem dodac wartosc z adresu zmiennej pid
@@ -97,7 +116,16 @@ class SymbolTable:
                         return var
 
                 else:
-                    print("Zmienna ", pid, " nie zadeklarowana")
+                    var = {'address': self.counter, 'start': "", 'end': "", 'table': 0, 'iterator': 1, 'name': pid,
+                           'only_value': 0, 'value': -1, 'is_in_memory': 0}
+                    self.counter += 1
+                    self.table.append(var)
+
+                    address = find[0]['address'] - find[0]['start']  # potem dodac wartosc z adresu iteratora
+                    var2 = {'address': address, 'start': 0, 'end': 0, 'table': 1, 'iterator': 0,
+                            'name': str(self.counter-1), 'only_value': -2, 'value': -2, 'is_in_memory': 0}
+                    return var2
+                    # print("Zmienna ", pid, " nie zadeklarowana")
 
         else:
             print("Tablica ", name, " nie zadeklarowana")
@@ -113,5 +141,16 @@ class SymbolTable:
         self.counter += 1
         self.table.append(var)
         return var
+
+    def delete_iterator_lim(self, iterator, lim):
+        if isinstance(iterator, list):
+            iterator = iterator[0]
+        i = next((i for i, item in enumerate(self.table) if item["name"] == iterator['name']), None)
+        self.table.pop(i)
+        i = next((i for i, item in enumerate(self.table) if item["name"] == iterator['name']), None)
+        #self.table.pop(i)
+
+
+
 
 

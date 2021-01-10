@@ -57,6 +57,11 @@ t_COMMA = r','
 t_pidentifier = r'[_a-z]+'
 
 
+def t_COMMENT(t):
+    r'(\#(.*?(\\\n)*)+\n)|(\[(.|\n)*?\])'
+    pass
+
+
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)

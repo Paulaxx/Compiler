@@ -155,6 +155,7 @@ class SymbolTable:
         if find:
             if find[0]['only_value'] != 1 and find[0]['value'] == -1:
                 print("Niezainicjalizowana zmienna w zakresie petli")
+                # zmienic zeby sprawdzalo na samym koncu czy to przypadkiem nie od petli wyzej
 
 
 

@@ -124,8 +124,8 @@ def p_command_for(p):
         p[4] = p[4][0]
     if isinstance(p[6], list):
         p[6] = p[6][0]
-    symbol_table.check_if_initialize(p[4]['name'])
-    symbol_table.check_if_initialize(p[6]['name'])
+    symbol_table.check_if_initialize(p[4]['name'], p[2])
+    symbol_table.check_if_initialize(p[6]['name'], p[2])
     p[2] = symbol_table.get_variable(p[2])
     code.load_to_memory(p[4], p[2])
 
@@ -160,8 +160,8 @@ def p_command_for_downto(p):
         p[4] = p[4][0]
     if isinstance(p[6], list):
         p[6] = p[6][0]
-    symbol_table.check_if_initialize(p[4]['name'])
-    symbol_table.check_if_initialize(p[6]['name'])
+    symbol_table.check_if_initialize(p[4]['name'], p[2])
+    symbol_table.check_if_initialize(p[6]['name'], p[2])
     p[2] = symbol_table.get_variable(p[2])
     code.load_to_memory(p[4], p[2])
 

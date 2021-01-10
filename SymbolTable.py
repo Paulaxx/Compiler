@@ -150,12 +150,9 @@ class SymbolTable:
         i = next((i for i, item in enumerate(self.table) if item["name"] == iterator['name']), None)
         #self.table.pop(i)
 
-    def check_if_initialize(self, name):
-        find = list(filter(lambda variable: variable['name'] == name, self.table))
-        if find:
-            if find[0]['only_value'] != 1 and find[0]['value'] == -1:
-                print("Niezainicjalizowana zmienna w zakresie petli")
-                # zmienic zeby sprawdzalo na samym koncu czy to przypadkiem nie od petli wyzej
+    def check_if_initialize(self, name, iterator):
+        if name == iterator:
+            print("Użycie iteratora w zakresie pętli")
 
 
 

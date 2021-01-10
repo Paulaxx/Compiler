@@ -128,44 +128,19 @@ class MachineCode:
     def set_value_to_register(self, r_name, r_value, value):
         value = int(value)
         r_value = -1
+        binary_rep = [int(x) for x in bin(value)[2:]]
+
         if r_value == -1:
             r_value = 0
             command = {'com': "RESET", 'arg1': r_name, 'arg2': ""}
             self.code.append(command)
 
-        if r_value == value:
-            return
-        if r_value == 0:
-            r_value += 1
-            command = {'com': "INC", 'arg1': r_name, 'arg2': ""}
+        for i in binary_rep:
+            command = {'com': "SHL", 'arg1': r_name, 'arg2': ""}
             self.code.append(command)
-
-        if r_value < value:
-            while r_value * 2 <= value:
-                r_value *= 2
-                command = {'com': "SHL", 'arg1': r_name, 'arg2': ""}
-                self.code.append(command)
-                if r_value == value:
-                    return
-            while r_value + 1 <= value:
-                r_value += 1
+            if i == 1:
                 command = {'com': "INC", 'arg1': r_name, 'arg2': ""}
                 self.code.append(command)
-                if r_value == value:
-                    return
-        elif r_value > value:
-            while r_value // 2 >= value:
-                r_value //= 2
-                command = {'com': "SHR", 'arg1': r_name, 'arg2': ""}
-                self.code.append(command)
-                if r_value == value:
-                    return
-            while r_value - 1 >= value:
-                r_value -= 1
-                command = {'com': "DEC", 'arg1': r_name, 'arg2': ""}
-                self.code.append(command)
-                if r_value == value:
-                    return
 
     def actualize_register_value(self, name, new_value):
         if name == 'a':

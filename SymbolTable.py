@@ -65,7 +65,10 @@ class SymbolTable:
             iterator = iterator[0]
         if isinstance(lim, list):
             lim = lim[0]
-        name = iterator['name']
+        if lim['only_value'] == -2:
+            name = lim['name']
+        else:
+            name = iterator['name']
         var = {'address': self.counter, 'start': lim['address'], 'end': "", 'table': 0, 'iterator': 1, 'name': name,
                'only_value': lim['only_value'], 'value': lim['value'], 'is_in_memory': lim['is_in_memory']}
         self.counter += 1
@@ -102,9 +105,9 @@ class SymbolTable:
                     if find2[0]['table'] == 1:
                         print("Tablica w tablicy")
                         sys.exit()
-                    elif find2[0]['value'] == -1:
-                        print("Zmienna ", pid, " nie zainicjalizowana")
-                        sys.exit()
+                    #elif find2[0]['value'] == -1:
+                    #    print("Zmienna ", pid, " nie zainicjalizowana")
+                    #    sys.exit()
 
                     else:
                         address = find[0]['address'] - find[0]['start']  # potem dodac wartosc z adresu zmiennej pid
@@ -113,8 +116,16 @@ class SymbolTable:
                         return var
 
                 else:
-                    print("Zmienna ", pid, " nie zadeklarowana")
-                    # dopisac zwracanie iteratora
+                    var = {'address': self.counter, 'start': "", 'end': "", 'table': 0, 'iterator': 1, 'name': pid,
+                           'only_value': 0, 'value': -1, 'is_in_memory': 0}
+                    self.counter += 1
+                    self.table.append(var)
+
+                    address = find[0]['address'] - find[0]['start']  # potem dodac wartosc z adresu iteratora
+                    var2 = {'address': address, 'start': 0, 'end': 0, 'table': 1, 'iterator': 0,
+                            'name': str(self.counter-1), 'only_value': -2, 'value': -2, 'is_in_memory': 0}
+                    return var2
+                    # print("Zmienna ", pid, " nie zadeklarowana")
 
         else:
             print("Tablica ", name, " nie zadeklarowana")

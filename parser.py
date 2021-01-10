@@ -160,6 +160,7 @@ def p_command_for_downto(p):
     where_to_jump = len(code.code)
     s111 = len(code.code)
     start, jump = code.condition_1(p[2], p[6], '>=')
+
     s222 = len(code.code)
     code.for_jump(jump, p[8].counter)
     gen_code = code.copy_code(s1)

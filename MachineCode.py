@@ -498,7 +498,7 @@ class MachineCode:
             self.actualize_register_value(reg1['name'], -1)
 
             if sign == '+':
-                command = {'com': "ADD", 'arg1': reg2['name'], 'arg2': reg1['name']}
+                command = {'com': "ADD", 'arg1': reg1['name'], 'arg2': reg2['name']}
             elif sign == '-':
                 command = {'com': "SUB", 'arg1': reg1['name'], 'arg2': reg2['name']}
             self.code.append(command)

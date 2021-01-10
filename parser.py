@@ -120,6 +120,12 @@ def p_command_repeat_until(p):
 def p_command_for(p):
     'command : FOR pidentifier FROM value TO value DO commands ENDFOR'
     s1 = len(code.code)
+    if isinstance(p[4], list):
+        p[4] = p[4][0]
+    if isinstance(p[6], list):
+        p[6] = p[6][0]
+    symbol_table.check_if_initialize(p[4]['name'])
+    symbol_table.check_if_initialize(p[6]['name'])
     p[2] = symbol_table.get_variable(p[2])
     code.load_to_memory(p[4], p[2])
 
@@ -150,6 +156,12 @@ def p_command_for(p):
 def p_command_for_downto(p):
     'command : FOR pidentifier FROM value DOWNTO value DO commands ENDFOR'
     s1 = len(code.code)
+    if isinstance(p[4], list):
+        p[4] = p[4][0]
+    if isinstance(p[6], list):
+        p[6] = p[6][0]
+    symbol_table.check_if_initialize(p[4]['name'])
+    symbol_table.check_if_initialize(p[6]['name'])
     p[2] = symbol_table.get_variable(p[2])
     code.load_to_memory(p[4], p[2])
 

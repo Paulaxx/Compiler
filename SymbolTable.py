@@ -67,7 +67,7 @@ class SymbolTable:
             lim = lim[0]
         name = iterator['name']
         var = {'address': self.counter, 'start': lim['address'], 'end': "", 'table': 0, 'iterator': 1, 'name': name,
-               'only_value': lim['only_value'], 'value': lim['only_value'], 'is_in_memory': lim['only_value']}
+               'only_value': lim['only_value'], 'value': lim['value'], 'is_in_memory': lim['is_in_memory']}
         self.counter += 1
         return var
 

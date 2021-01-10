@@ -1610,13 +1610,23 @@ class MachineCode:
         command = {'com': "JUMP", 'arg1': str(-how_many_jump), 'arg2': ""}
         self.code.append(command)
 
-    def load_to_memory(self, add_from, add_to):
+    def load_to_memory(self, var1, var2):
+        if isinstance(var1, list):
+            var1 = var1[0]
+        if isinstance(var2, list):
+            var2 = var2[0]
+        add_from = var1['address']
+        add_to = var2['address']
         reg1, reg2 = self.get_2_registers(add_to)
-        self.set_value_to_register(reg1['name'], reg1['value'], add_from)
-        command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
-        self.code.append(command)
-        self.actualize_register_value(reg1['name'], -1)
+
+        if var1['only_value'] == 0:
+            self.set_value_to_register(reg1['name'], reg1['value'], add_from)
+            command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+            self.actualize_register_value(reg1['name'], -1)
+        elif var1['only_value'] == 1:
+            self.set_value_to_register(reg1['name'], reg1['value'], var1['value'])
+
         self.set_value_to_register(reg2['name'], reg2['value'], add_to)
-        self.actualize_register_value(reg2['name'], add_to)
         command = {'com': "STORE", 'arg1': reg1['name'], 'arg2': reg2['name']}
         self.code.append(command)

@@ -151,8 +151,12 @@ class SymbolTable:
         #self.table.pop(i)
 
     def check_if_initialize(self, name, iterator):
-        if name == iterator:
+        if name['name'] == iterator:
             print("Użycie iteratora w zakresie pętli")
+            sys.exit()
+        elif name['value'] == -1 and name['iterator'] == 0:
+            print("Niezainicjalizowana zmienna w zakresie pętli")
+            sys.exit()
 
 
 

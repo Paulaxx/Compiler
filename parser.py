@@ -250,7 +250,7 @@ def p_expression_times(p):
 def p_expression_divide(p):
     'expression : value DIVIDE value'
     s1 = len(code.code)
-    reg = code.expression_divide(p[1], p[3])
+    reg = code.expression_divide_modulo(p[1], p[3], p[2])
     s2 = len(code.code)
     p[0] = Expression(reg, s2 - s1)
 
@@ -258,7 +258,7 @@ def p_expression_divide(p):
 def p_expression_modulo(p):
     'expression : value MODULO value'
     s1 = len(code.code)
-    reg = code.expression_modulo(p[1], p[3])
+    reg = code.expression_divide_modulo(p[1], p[3], p[2])
     s2 = len(code.code)
     p[0] = Expression(reg, s2 - s1)
 

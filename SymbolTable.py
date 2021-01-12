@@ -57,8 +57,6 @@ class SymbolTable:
             self.counter += 1
             self.table.append(var)
             return var
-            #print("Zmienna ", name, " nie zadeklarowana")
-            #sys.exit()
 
     def get_lim_of_iterator(self, iterator, lim):
         if isinstance(iterator, list):
@@ -132,7 +130,6 @@ class SymbolTable:
             sys.exit()
 
     def get_num(self, num):
-        # jak taka liczba jest juz w tabeli to nie dodawac nastepnej tylko zwracac ta co juz jest
         for numb in self.table:
             if numb['name'] == str(num):
                 return numb

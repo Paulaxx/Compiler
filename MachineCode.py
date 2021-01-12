@@ -177,7 +177,6 @@ class MachineCode:
             self.code.append(command)
         else:
             address = variable['address']
-            # address = variable['address']
             reg = self.get_register_by_value(address)
             self.set_value_to_register(reg['name'], reg['value'], address)
             command = {'com': "GET", 'arg1': reg['name'], 'arg2': ""}
@@ -530,15 +529,24 @@ class MachineCode:
             print("Zmienna ", var2['name'], " nie zainicjalizowana")
             sys.exit()
 
-        reg1, reg2, reg3 = self.get_3_registers(0)
+        reg1, reg2, reg3, reg4 = self.get_4_registers(0)
         if var1['only_value'] == 1:
             value = var1['value']
             self.set_value_to_register(reg1['name'], reg1['value'], value)
             self.actualize_register_value(reg1['name'], value)
+            command = {'com': "RESET", 'arg1': reg4['name'], 'arg2': ""}
+            self.code.append(command)
+            command = {'com': "ADD", 'arg1': reg4['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+            self.actualize_register_value(reg4['name'], value)
         elif var1['only_value'] == 0:
             address = var1['address']
             self.set_value_to_register(reg1['name'], reg1['value'], address)
             command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+            command = {'com': "RESET", 'arg1': reg4['name'], 'arg2': ""}
+            self.code.append(command)
+            command = {'com': "ADD", 'arg1': reg4['name'], 'arg2': reg1['name']}
             self.code.append(command)
             self.actualize_register_value(reg1['name'], -1)
         elif var1['only_value'] == -2:
@@ -551,6 +559,10 @@ class MachineCode:
             command = {'com': "ADD", 'arg1': reg1['name'], 'arg2': reg2['name']}
             self.code.append(command)
             command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
+            self.code.append(command)
+            command = {'com': "RESET", 'arg1': reg4['name'], 'arg2': ""}
+            self.code.append(command)
+            command = {'com': "ADD", 'arg1': reg4['name'], 'arg2': reg1['name']}
             self.code.append(command)
 
         if var2['only_value'] == 1:
@@ -587,6 +599,25 @@ class MachineCode:
                 command = {'com': "LOAD", 'arg1': reg2['name'], 'arg2': reg2['name']}
                 self.code.append(command)
 
+        command = {'com': "SUB", 'arg1': reg1['name'], 'arg2': reg2['name']}
+        self.code.append(command)
+        command = {'com': "JZERO", 'arg1': reg1['name'], 'arg2': str(2)}
+        self.code.append(command)
+        command = {'com': "JUMP", 'arg1': str(5), 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "ADD", 'arg1': reg1['name'], 'arg2': reg2['name']}
+        self.code.append(command)
+        command = {'com': "RESET", 'arg1': reg2['name'], 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "ADD", 'arg1': reg2['name'], 'arg2': reg4['name']}
+        self.code.append(command)
+        command = {'com': "JUMP", 'arg1': str(3), 'arg2': ""}
+        self.code.append(command)
+
+        command = {'com': "RESET", 'arg1': reg1['name'], 'arg2': ""}
+        self.code.append(command)
+        command = {'com': "ADD", 'arg1': reg1['name'], 'arg2': reg4['name']}
+        self.code.append(command)
         self.set_value_to_register(reg3['name'], reg3['value'], 0)
         command = {'com': "JODD", 'arg1': reg2['name'], 'arg2': str(5)}
         self.code.append(command)
@@ -936,20 +967,7 @@ class MachineCode:
             self.code.append(command)
 
         elif var1['only_value'] == 0 and var2['only_value'] == -2:
-            print("Condition: ", var1, var2)
             reg1, reg2 = self.r5, self.r6
-            """
-            self.set_value_to_register(reg2['name'], reg2['value'], var2['address'])
-            self.actualize_register_value(reg2['name'], -1)
-            self.set_value_to_register(reg1['name'], reg1['value'], var2['name'])
-            command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
-            self.code.append(command)
-            self.actualize_register_value(reg1['name'], -1)
-            command = {'com': "ADD", 'arg1': reg2['name'], 'arg2': reg1['name']}
-            self.code.append(command)
-            command = {'com': "LOAD", 'arg1': reg2['name'], 'arg2': reg2['name']}
-            self.code.append(command)
-            """
             self.set_value_to_register(reg1['name'], -1, var1['address'])
             command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
             self.code.append(command)
@@ -1149,7 +1167,6 @@ class MachineCode:
 
         if var1['only_value'] == -2:
             if add_from < 0:
-                print(var1, var2)
                 self.set_value_to_register(reg1['name'], reg1['value'], var1['name'])
                 command = {'com': "LOAD", 'arg1': reg1['name'], 'arg2': reg1['name']}
                 self.code.append(command)

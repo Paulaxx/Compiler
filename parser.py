@@ -198,8 +198,6 @@ def p_read(p):
         p[2] = p[2][0]
     p[2]['is_in_memory'] = 1
     p[2]['value'] = 0  # zainicjalizowana
-    # p[2]['is_in_memory'] = 1
-    # p[2]['value'] = 0
     s2 = len(code.code)
     p[0] = Command(s2 - s1)
 
@@ -312,10 +310,8 @@ def p_error(p):
 
 
 def main():
-    # inputFile = sys.argv[1]
-    inputFile = "test.imp"
-    # outputFile = sys.argv[2]
-    outputFile = "out.mr"
+    inputFile = sys.argv[1]
+    outputFile = sys.argv[2]
     parser = yacc.yacc()
     with open(inputFile, "r") as file:
         parser.parse(file.read())
@@ -324,12 +320,7 @@ def main():
         if i['iterator'] == 1:
             print("Zmienna ", i['name'], " nie zadeklarowana")
             sys.exit()
-    """
-    c=0
-    for i in code.code:
-        print(c, i)
-        c += 1
-    """
+
     with open(outputFile, "w") as file:
         for i in code.code:
             file.write(i['com'] + " " + str(i['arg1']) + " " + str(i['arg2']) + '\n')

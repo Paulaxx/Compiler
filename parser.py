@@ -120,6 +120,12 @@ def p_command_repeat_until(p):
 def p_command_for(p):
     'command : FOR pidentifier FROM value TO value DO commands ENDFOR'
     s1 = len(code.code)
+    if isinstance(p[4], list):
+        p[4] = p[4][0]
+    if isinstance(p[6], list):
+        p[6] = p[6][0]
+    symbol_table.check_if_initialize(p[4], p[2])
+    symbol_table.check_if_initialize(p[6], p[2])
     p[2] = symbol_table.get_variable(p[2])
     code.load_to_memory(p[4], p[2])
 
@@ -150,6 +156,12 @@ def p_command_for(p):
 def p_command_for_downto(p):
     'command : FOR pidentifier FROM value DOWNTO value DO commands ENDFOR'
     s1 = len(code.code)
+    if isinstance(p[4], list):
+        p[4] = p[4][0]
+    if isinstance(p[6], list):
+        p[6] = p[6][0]
+    symbol_table.check_if_initialize(p[4], p[2])
+    symbol_table.check_if_initialize(p[6], p[2])
     p[2] = symbol_table.get_variable(p[2])
     code.load_to_memory(p[4], p[2])
 
@@ -238,7 +250,7 @@ def p_expression_times(p):
 def p_expression_divide(p):
     'expression : value DIVIDE value'
     s1 = len(code.code)
-    reg = code.expression_divide(p[1], p[3])
+    reg = code.expression_divide_modulo(p[1], p[3], p[2])
     s2 = len(code.code)
     p[0] = Expression(reg, s2 - s1)
 
@@ -246,7 +258,7 @@ def p_expression_divide(p):
 def p_expression_modulo(p):
     'expression : value MODULO value'
     s1 = len(code.code)
-    reg = code.expression_modulo(p[1], p[3])
+    reg = code.expression_divide_modulo(p[1], p[3], p[2])
     s2 = len(code.code)
     p[0] = Expression(reg, s2 - s1)
 

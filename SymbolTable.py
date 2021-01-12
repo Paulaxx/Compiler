@@ -105,9 +105,9 @@ class SymbolTable:
                     if find2[0]['table'] == 1:
                         print("Tablica w tablicy")
                         sys.exit()
-                    #elif find2[0]['value'] == -1:
-                    #    print("Zmienna ", pid, " nie zainicjalizowana")
-                    #    sys.exit()
+                    elif find2[0]['value'] == -1 and find2[0]['iterator'] == 0:
+                        print("Zmienna ", pid, " nie zainicjalizowana")
+                        sys.exit()
 
                     else:
                         address = find[0]['address'] - find[0]['start']  # potem dodac wartosc z adresu zmiennej pid
@@ -150,6 +150,13 @@ class SymbolTable:
         i = next((i for i, item in enumerate(self.table) if item["name"] == iterator['name']), None)
         #self.table.pop(i)
 
+    def check_if_initialize(self, name, iterator):
+        if name['name'] == iterator:
+            print("Użycie iteratora w zakresie pętli")
+            sys.exit()
+        elif name['value'] == -1 and name['iterator'] == 0 and name['table'] == 0:
+            print("Niezainicjalizowana zmienna w zakresie pętli")
+            sys.exit()
 
 
 
